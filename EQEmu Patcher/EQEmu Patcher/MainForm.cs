@@ -53,6 +53,23 @@ namespace EQEmu_Patcher
         public MainForm()
         {
             InitializeComponent();
+            ApplyTheme();
+        }
+
+        // Dark stone + gold look, to match the Magrathea splash art.
+        private void ApplyTheme()
+        {
+            this.BackColor = Theme.Background;
+            this.ForeColor = Theme.Text;
+            txtList.BackColor = Theme.Panel;
+            txtList.ForeColor = Theme.Text;
+            txtList.BorderStyle = BorderStyle.FixedSingle;
+            splashLogo.BackColor = Theme.Background;
+            Theme.StyleButton(btnCheck);
+            Theme.StyleButton(btnStart);
+            Theme.StyleButton(btn4GB);
+            Theme.StyleCheckBox(chkAutoPatch);
+            Theme.StyleCheckBox(chkAutoPlay);
         }
 
         private async void MainForm_Load(object sender, EventArgs e)
@@ -119,6 +136,7 @@ namespace EQEmu_Patcher
             buildClientVersions();
             IniLibrary.Load();
             detectClientVersion();
+            Update4GBButton();
             isAutoPlay = (IniLibrary.instance.AutoPlay.ToLower() == "true");
             isAutoPatch = (IniLibrary.instance.AutoPatch.ToLower() == "true");
             chkAutoPlay.Checked = isAutoPlay;
@@ -166,7 +184,7 @@ namespace EQEmu_Patcher
                 return;
             }
 
-            this.Text = serverName + " (Client: " + currentVersion.ToString().Replace("_", " ") + ")";
+            this.Text = serverName + " Patcher";
             progressBar.Minimum = 0;
             progressBar.Maximum = 10000;
             progressBar.Value = 0;
@@ -196,7 +214,7 @@ namespace EQEmu_Patcher
             StatusLibrary.SubscribePatchState(new StatusLibrary.PatchStateHandler((bool isPatchGoing) => {
                 Invoke((MethodInvoker)delegate {
 
-                    btnCheck.BackColor = SystemColors.Control;
+                    Theme.SetButtonAttention(btnCheck, false);
                     if (isPatchGoing)
                     {
                         btnCheck.Text = "Cancel";
@@ -241,7 +259,7 @@ namespace EQEmu_Patcher
                     //StatusLibrary.Log($"{myHash} vs {response} selfpatch");
                     if (!isPendingPatch)
                     {
-                        btnCheck.BackColor = Color.Red;
+                        Theme.SetButtonAttention(btnCheck, true);
                     }
                 }
             }
@@ -261,7 +279,7 @@ namespace EQEmu_Patcher
             {
                 if (!isPendingPatch)
                 {
-                    btnCheck.BackColor = Color.Red;
+                    Theme.SetButtonAttention(btnCheck, true);
                 }
             } else
             {
@@ -288,59 +306,11 @@ namespace EQEmu_Patcher
                     this.Close();
                     return;
                 }
-                switch (hash)
-                {
-                    case "85218FC053D8B367F2B704BAC5E30ACC":
-                        currentVersion = VersionTypes.Secrets_Of_Feydwer;
-                        splashLogo.Image = Properties.Resources.sof;
-                        break;
-                    case "859E89987AA636D36B1007F11C2CD6E0":
-                    case "EF07EE6649C9A2BA2EFFC3F346388E1E78B44B48": //one of the torrented uf clients, used by B&R too
-                        currentVersion = VersionTypes.Underfoot;
-                        splashLogo.Image = Properties.Resources.underfoot;
-                        break;
-                    case "A9DE1B8CC5C451B32084656FCACF1103": //p99 client
-                    case "BB42BC3870F59B6424A56FED3289C6D4": //vanilla titanium
-                        currentVersion = VersionTypes.Titanium;
-                        splashLogo.Image = Properties.Resources.titanium;
-                        break;
-                    case "368BB9F425C8A55030A63E606D184445":
-                        currentVersion = VersionTypes.Rain_Of_Fear;
-                        splashLogo.Image = Properties.Resources.rof;
-                        break;
-                    case "240C80800112ADA825C146D7349CE85B":
-                    case "A057A23F030BAA1C4910323B131407105ACAD14D": //This is a custom ROF2 from a torrent download
-                    case "389709EC0E456C3DAE881A61218AAB3F": // This is a 4gb patched eqgame
-                    case "6574AC667D4C522D21A47F4D00920CC2": // Unknown origin, issue #29
-                    case "AE4E4C995DF8842DAE3127E88E724033": // gangsta of RoT 4gb patched eqgame
-                    case "3B44C6CD42313CB80C323647BCB296EF": //https://github.com/xackery/eqemupatcher/issues/15
-                    case "513FDC2B5CC63898D7962F0985D5C207": //aslr checksum removed
-                    case "2FD5E6243BCC909D9FD0587A156A1165": //https://github.com/xackery/eqemupatcher/issues/20
-                    case "26DC13388395A20B73E1B5A08415B0F8": //Legacy of Norrath Custom RoF2 Client https://github.com/xackery/eqemupatcher/issues/16
-                        currentVersion = VersionTypes.Rain_Of_Fear_2;
-                        splashLogo.Image = Properties.Resources.rof;
-                        break;
-                    case "6BFAE252C1A64FE8A3E176CAEE7AAE60": //This is one of the live EQ binaries.
-                    case "AD970AD6DB97E5BB21141C205CAD6E68": //2016/08/27
-                        currentVersion = VersionTypes.Broken_Mirror;
-                        splashLogo.Image = Properties.Resources.brokenmirror;
-                        break;
-                    default:
-                        currentVersion = VersionTypes.Unknown;
-                        break;
-                }
-                if (currentVersion == VersionTypes.Unknown)
-                {
-                    if (MessageBox.Show("Unable to recognize the Everquest client in this directory, open a web page to report to devs?", "Visit", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk) == DialogResult.Yes)
-                    {
-                        System.Diagnostics.Process.Start("https://github.com/Xackery/eqemupatcher/issues/new?title=A+New+EQClient+Found&body=Hi+I+Found+A+New+Client!+Hash:+" + hash);
-                    }
-                    StatusLibrary.Log($"Unable to recognize the Everquest client in this directory, send to developers: {hash}");
-                }
-                else
-                {
-                    //StatusLibrary.Log($"You seem to have put me in a {clientVersions[currentVersion].FullName} client directory");
-                }
+                // Magrathea only supports the RoF2 client, so we do not gate on the eqgame.exe hash.
+                // The 4GB patch (and other tools) legitimately change that hash, and refusing to run
+                // because of it would just lock players out.
+                currentVersion = VersionTypes.Rain_Of_Fear_2;
+                splashLogo.Image = Properties.Resources.rof;
 
                 //MessageBox.Show(""+currentVersion);
                 //StatusLibrary.Log($"If you wish to help out, press the scan button on the bottom left and wait for it to complete, then copy paste this data as an Issue on github!");
@@ -502,6 +472,11 @@ namespace EQEmu_Patcher
                 StatusLibrary.Log("Resuming patching...");
             }
             if (!filelist.downloadprefix.EndsWith("/")) filelist.downloadprefix += "/";
+
+            // Every file we replace is copied here first, so players can always get their originals back.
+            string exeDir = Path.GetDirectoryName(Application.ExecutablePath);
+            string backupRoot = Path.Combine(exeDir, "Magrathea_Backup", DateTime.Now.ToString("yyyy-MM-dd_HHmmss"));
+            bool anyBackup = false;
             foreach (var entry in filelist.downloads)
             {
                 if (isPatchCancelled)
@@ -534,15 +509,52 @@ namespace EQEmu_Patcher
 
                 string url = filelist.downloadprefix + entry.name.Replace("\\", "/");
 
-                string resp = await DownloadFile(cts, url, entry.name);
+                // Download to a temporary file first. The player's existing file is not touched
+                // until the download has finished AND its checksum has been verified.
+                string tmpPath = path + ".mpatch.tmp";
+                string resp = await DownloadFile(cts, url, entry.name + ".mpatch.tmp");
                 if (resp != "")
                 {
+                    TryDelete(tmpPath);
                     if (resp == "404")
                     {
                         StatusLibrary.Log($"Failed to download {entry.name} ({generateSize(entry.size)}) from {url}, 404 error (website may be down?)");
                         return;
                     }
                     StatusLibrary.Log($"Failed to download {entry.name} ({generateSize(entry.size)}) from {url}: {resp}");
+                    return;
+                }
+
+                if (!string.IsNullOrEmpty(entry.md5))
+                {
+                    string gotMd5 = UtilityLibrary.GetMD5(tmpPath);
+                    if (!string.Equals(gotMd5, entry.md5, StringComparison.OrdinalIgnoreCase))
+                    {
+                        TryDelete(tmpPath);
+                        StatusLibrary.Log($"The downloaded copy of {entry.name} is corrupt (checksum mismatch). Your existing file was not changed. Please press Patch to try again.");
+                        return;
+                    }
+                }
+
+                try
+                {
+                    if (File.Exists(path))
+                    {
+                        string backupPath = Path.Combine(backupRoot, entry.name.Replace("/", "\\"));
+                        Directory.CreateDirectory(Path.GetDirectoryName(backupPath));
+                        File.Copy(path, backupPath, true);
+                        anyBackup = true;
+                        File.Replace(tmpPath, path, null);
+                    }
+                    else
+                    {
+                        File.Move(tmpPath, path);
+                    }
+                }
+                catch (Exception installEx)
+                {
+                    TryDelete(tmpPath);
+                    StatusLibrary.Log($"Could not install {entry.name}: {installEx.Message} Close EverQuest completely and press Patch again.");
                     return;
                 }
                 StatusLibrary.Log($"{entry.name} ({generateSize(entry.size)})");
@@ -589,6 +601,7 @@ namespace EQEmu_Patcher
             }
 
             string elapsed = start.Elapsed.ToString("ss\\.ff");
+            if (anyBackup) StatusLibrary.Log($"Your previous files were saved to: {backupRoot}");
             StatusLibrary.Log($"Complete! Patched {generateSize(patchedBytes)} in {elapsed} seconds. Press Play to begin.");
             IniLibrary.instance.LastPatchedVersion = filelist.version;
             IniLibrary.Save();
@@ -627,6 +640,68 @@ namespace EQEmu_Patcher
                 StatusLibrary.Log("Checking for updates...");
                 btnCheck.Text = "Cancel";
             }
+        }
+
+        private static void TryDelete(string filePath)
+        {
+            try
+            {
+                if (File.Exists(filePath)) File.Delete(filePath);
+            }
+            catch (Exception)
+            {
+                // best effort cleanup only
+            }
+        }
+
+        private string EqGamePath()
+        {
+            return Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "eqgame.exe");
+        }
+
+        // Shows whether the 4GB patch is already on eqgame.exe, and enables/disables the button to match.
+        private void Update4GBButton()
+        {
+            string exePath = EqGamePath();
+            if (!File.Exists(exePath))
+            {
+                btn4GB.Enabled = false;
+                return;
+            }
+            if (PEModifier.IsApplied(exePath))
+            {
+                btn4GB.Text = "4GB Patch Applied";
+                btn4GB.Enabled = false;
+            }
+            else
+            {
+                btn4GB.Text = "Apply 4GB Patch";
+                btn4GB.Enabled = true;
+            }
+        }
+
+        private void btn4GB_Click(object sender, EventArgs e)
+        {
+            if (Process.GetProcessesByName("eqgame").Length > 0)
+            {
+                MessageBox.Show("EverQuest is running. Close it completely, then try again.", serverName);
+                return;
+            }
+
+            DialogResult answer = MessageBox.Show(
+                "The 4GB patch lets EverQuest use more memory, which helps prevent crashes. It is recommended.\n\n" +
+                "A backup of your original eqgame.exe will be saved as eqgame.exe.bak.\n\nApply it now?",
+                serverName, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (answer != DialogResult.Yes) return;
+
+            string result = PEModifier.Apply(EqGamePath());
+            if (result != "")
+            {
+                MessageBox.Show("The 4GB patch could not be applied: " + result, serverName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            Update4GBButton();
+            MessageBox.Show("4GB patch applied. Your original is saved as eqgame.exe.bak.", serverName);
         }
 
         private string generateSize(double size) {

@@ -30,11 +30,12 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.progressBar = new System.Windows.Forms.ProgressBar();
+            this.progressBar = new EQEmu_Patcher.GoldProgressBar();
             this.txtList = new System.Windows.Forms.TextBox();
             this.btnStart = new System.Windows.Forms.Button();
             this.splashLogo = new System.Windows.Forms.PictureBox();
             this.btnCheck = new System.Windows.Forms.Button();
+            this.btn4GB = new System.Windows.Forms.Button();
             this.chkAutoPlay = new System.Windows.Forms.CheckBox();
             this.chkAutoPatch = new System.Windows.Forms.CheckBox();
             this.pendingPatchTimer = new System.Windows.Forms.Timer(this.components);
@@ -100,6 +101,17 @@
             this.btnCheck.UseVisualStyleBackColor = true;
             this.btnCheck.Click += new System.EventHandler(this.btnCheck_Click);
             // 
+            // btn4GB
+            // 
+            this.btn4GB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btn4GB.Location = new System.Drawing.Point(113, 487);
+            this.btn4GB.Name = "btn4GB";
+            this.btn4GB.Size = new System.Drawing.Size(196, 28);
+            this.btn4GB.TabIndex = 9;
+            this.btn4GB.Text = "Apply 4GB Patch";
+            this.btn4GB.UseVisualStyleBackColor = true;
+            this.btn4GB.Click += new System.EventHandler(this.btn4GB_Click);
+            // 
             // chkAutoPlay
             // 
             this.chkAutoPlay.AutoSize = true;
@@ -136,6 +148,7 @@
             this.Controls.Add(this.txtList);
             this.Controls.Add(this.btnStart);
             this.Controls.Add(this.btnCheck);
+            this.Controls.Add(this.btn4GB);
             this.Controls.Add(this.splashLogo);
             this.Controls.Add(this.progressBar);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -154,11 +167,12 @@
 
         #endregion
 
-        private System.Windows.Forms.ProgressBar progressBar;
+        private EQEmu_Patcher.GoldProgressBar progressBar;
         private System.Windows.Forms.TextBox txtList;
         private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.PictureBox splashLogo;
         private System.Windows.Forms.Button btnCheck;
+        private System.Windows.Forms.Button btn4GB;
         private System.Windows.Forms.CheckBox chkAutoPlay;
         private System.Windows.Forms.CheckBox chkAutoPatch;
         private System.Windows.Forms.Timer pendingPatchTimer;

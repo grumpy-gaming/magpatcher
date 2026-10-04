@@ -101,6 +101,8 @@
     </Compile>
     <Compile Include="PatcherUrl.cs" />
     <Compile Include="PatchVersion.cs" />
+    <Compile Include="PEModifier.cs" />
+    <Compile Include="Theme.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ServerName.cs" />
     <Compile Include="StatusLibrary.cs" />

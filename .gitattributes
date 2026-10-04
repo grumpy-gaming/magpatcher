@@ -71,3 +71,6 @@
 *.PDF   diff=astextplain
 *.rtf   diff=astextplain
 *.RTF   diff=astextplain
+
+# Magrathea: patch files must be served byte-for-byte, or their checksums stop matching.
+rof/** binary
