@@ -9,7 +9,7 @@ THJPatcher. Both are GPL v2, and so is this.
 
 ## For players
 
-1. Download `MagratheaPatcher.exe` from the [latest release](../../releases/latest).
+1. Download `magpatcher.exe` from the [latest release](../../releases/latest).
 2. Put it in your RoF2 folder (the one that contains `eqgame.exe`) and run it.
 3. Press **Patch**, then **Play**. Play starts the game with the `patchme` argument for you.
 
@@ -35,7 +35,7 @@ rof/Resources/BaseData.txt
 
 1. Copy updated files into `rof/` (everything in that folder is shipped to players, so keep it to patch files only).
 2. Commit and push to `master`.
-3. GitHub Actions builds `MagratheaPatcher.exe`, works out a checksum for every file in `rof/`
+3. GitHub Actions builds `magpatcher.exe`, works out a checksum for every file in `rof/`
    (`filelist_rof.yml`), and publishes a new release. The patcher compares those checksums, so players only
    download files that changed.
 
